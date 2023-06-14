@@ -13,12 +13,10 @@ function generateRandomString() {
 	let shortURLID = '';
   let arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 	for (let i = 0; i < 6; i++) {
-		shortURLID += arr[(Math.floor(Math.random() * 6))];
+		shortURLID += arr[(Math.floor(Math.random() * arr.length))];
 	}
 	return shortURLID;
-}
-
-randomStr(20, '12345abcde');
+};
 
 
 app.use(express.urlencoded({ extended: true }));
@@ -39,9 +37,26 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`/urls/${id}`);
+});
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
+
+// find the index of the urlDatabase, if exist, delete
+app.post("/urls/:id/delete", (req, res) => {
+  const objectId = req.params.id;
+  // Delete if match
+  if (urlDatabase.hasOwnProperty(objectId)) {
+    delete urlDatabase[objectId];
+    res.redirect("/urls");
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Tinyapp listening on port ${PORT}!`);
 });

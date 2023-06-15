@@ -16,6 +16,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const user = {
+  1: {
+    id: 1,
+    email: "hans@gmail.com",
+    password: "hans"
+  },
+  2: {
+    id: 2,
+    email: "wang@gmail.com",
+    password: "wang"
+  }
+};
+
 function generateRandomString() {
 	let shortURLID = '';
   let arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -80,13 +93,18 @@ app.post('/login', (req, res) => {
   const username = req.body.username;
   res.cookie('username', username);
   res.redirect('/urls');
-})
+});
 
 //Logout route
 app.post('/logout', (req, res) => {
   res.clearCookie("username");
   res.redirect('/urls');
-})
+});
+
+//Register route
+app.get('/register', (req, res) => {
+  res.render('urls_register');
+});
 
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);

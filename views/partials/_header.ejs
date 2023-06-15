@@ -20,7 +20,13 @@
           <input type="text" name="username" placeholder="Username">
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <a class="nav-item nav-link">Hello, <%= username %></a>
+        <a class="nav-item nav-link">
+          <% if (username) { %>
+            <p>Welcome, <%= username %></p>
+            <form action="/logout" method="post">
+              <button type ="submit"> logout</button>
+            </form>
+          <% } %>
       </div>
     </div>
   </nav>

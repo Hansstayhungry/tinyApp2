@@ -1,9 +1,14 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+// const morgan = require('morgan');
+// const cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
-app.use(express.urlencoded())
+app.use(express.urlencoded());
+// app.use(express.json()); // Required to parse JSON request bodies
+// app.use(morgan("dev")); // Required to parse cookies
+// app.use(cookieParser()); // Required to parse cookies
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -66,6 +71,13 @@ app.post("/urls/:id/", (req, res) => {
   urlDatabase[objectId] = objectLongURL;
   res.redirect("/urls");
 });
+
+//Login route
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);

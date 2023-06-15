@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+app.use(express.urlencoded())
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -55,6 +56,15 @@ app.post("/urls/:id/delete", (req, res) => {
     delete urlDatabase[objectId];
     res.redirect("/urls");
   }
+});
+
+app.post("/urls/:id/", (req, res) => {
+  const objectLongURL = req.body.long_url;
+  console.log(objectLongURL);
+  const objectId = req.params.id;
+
+  urlDatabase[objectId] = objectLongURL;
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {

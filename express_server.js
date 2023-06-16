@@ -38,6 +38,14 @@ function generateRandomString() {
 	return shortURLID;
 };
 
+function getUserByEmail(email) {
+  for (let user in users) {
+    if (user[user].email === email) {
+      return true;
+    }
+  }
+};
+
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -111,6 +119,12 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  if (email === '' || password === '') {
+    res.send(400, "Please include a valid email/ password.");
+  } else if (getUserByEmail) {
+    res.send(400, "Email has been used, existing user");
+  }
   const id = generateRandomString();
   users[id] = {id: id, email: email, password: password};
   res.cookie('user_id', id);

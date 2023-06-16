@@ -16,17 +16,17 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const user = {
-  1: {
-    id: 1,
-    email: "hans@gmail.com",
-    password: "hans"
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
   },
-  2: {
-    id: 2,
-    email: "wang@gmail.com",
-    password: "wang"
-  }
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
 };
 
 function generateRandomString() {
@@ -105,6 +105,17 @@ app.post('/logout', (req, res) => {
 app.get('/register', (req, res) => {
   res.render('urls_register');
 });
+
+//Registration handling
+app.post('/register', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const id = generateRandomString();
+  users[id] = {id: id, email: email, password: password};
+  res.cookie('user_id', id);
+  console.log(users);
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);

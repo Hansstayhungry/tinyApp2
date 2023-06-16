@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+  <%- include('partials/_header') %>
   <head>
     <meta charset="utf-8" />
     <meta
@@ -22,9 +23,9 @@
       <h3>Sign up</h3>
       <form method="POST" action="/register">
         <label for="email">Email:</label>
-        <input type="email" name="email">
+        <input type="email" name="email" placeholder="Enter email">
         <label for="password">Password:</label>
-        <input type="password" name="password">
+        <input type="password" name="password" placeholder="Password">
         <input type="submit" value="Register">
       </form>
     </main>

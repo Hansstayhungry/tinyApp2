@@ -29,6 +29,12 @@ const users = {
   },
 };
 
+// Helper to check all users info
+for (const userId in users) {
+  console.log(`User ID: ${userId}`);
+  console.log(users[userId]);
+};
+
 function generateRandomString() {
 	let shortURLID = '';
   let arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -40,8 +46,8 @@ function generateRandomString() {
 
 function getUserByEmail(email) {
   for (let user in users) {
-    if (user.email === email) {
-      return users[user].id;
+    if (users[user].email === email) {
+      return users[user];
     }
   }
     return false;
@@ -107,26 +113,25 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-
   if (!getUserByEmail(email)) {
     res.send(400, "Email and/or password is incorrect");
   } else {
     const users = getUserByEmail(email);
     
-    if (users[id].password !== password) {
-      console.log(`password is ${users[id].password}` )
-      console.log(password);
-      res.send(400, "Email and/or password is incorrect2");
+    if (users.password !== password) {
+      console.log(users.password);
+      res.send(400, "Email and/or password is incorrect");
     } else {
-    res.cookie('user_id', id);
-    res.redirect('/urls');
+      const id = users.id;
+      res.cookie('user_id', id);
+      res.redirect('/urls');
     }
   }
 });
 
 //Logout route
 app.post('/logout', (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect('/urls');
 });
 

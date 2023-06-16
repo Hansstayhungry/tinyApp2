@@ -40,10 +40,11 @@ function generateRandomString() {
 
 function getUserByEmail(email) {
   for (let user in users) {
-    if (user[user].email === email) {
-      return true;
+    if (user.email === email) {
+      return users[user].id;
     }
   }
+    return false;
 };
 
 app.get("/urls", (req, res) => {
@@ -96,11 +97,31 @@ app.post("/urls/:id/", (req, res) => {
   res.redirect("/urls");
 });
 
+//New login route
+app.get('/login', (req, res) => {
+  const templateVars = {user: users[req.cookies["user_id"]]}
+  res.render('urls_login', templateVars);
+});
+
 //Login route
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
-  res.redirect('/urls');
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!getUserByEmail(email)) {
+    res.send(400, "Email and/or password is incorrect");
+  } else {
+    const users = getUserByEmail(email);
+    
+    if (users[id].password !== password) {
+      console.log(`password is ${users[id].password}` )
+      console.log(password);
+      res.send(400, "Email and/or password is incorrect2");
+    } else {
+    res.cookie('user_id', id);
+    res.redirect('/urls');
+    }
+  }
 });
 
 //Logout route
@@ -121,15 +142,16 @@ app.post('/register', (req, res) => {
   const password = req.body.password;
 
   if (email === '' || password === '') {
-    res.send(400, "Please include a valid email/ password.");
-  } else if (getUserByEmail) {
-    res.send(400, "Email has been used, existing user");
+    res.send(403, "Please include a valid email/ password.");
+  } else if (getUserByEmail(email)) {
+    res.send(403, "Email has been used, existing user");
+  } else {
+    const id = generateRandomString();
+    users[id] = {id: id, email: email, password: password};
+    res.cookie('user_id', id);
+    console.log(users);
+    res.redirect('/urls');
   }
-  const id = generateRandomString();
-  users[id] = {id: id, email: email, password: password};
-  res.cookie('user_id', id);
-  console.log(users);
-  res.redirect('/urls');
 })
 
 app.listen(PORT, () => {

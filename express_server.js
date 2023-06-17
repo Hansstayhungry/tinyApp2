@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 // const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded());
@@ -163,12 +164,14 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
   if (!getUserByEmail(email)) {
     res.send(400, "Email and/or password is incorrect");
   } else {
     const users = getUserByEmail(email);
     
-    if (users.password !== password) {
+    if (!bcrypt.compareSync(password, users.password)) {
       console.log(users.password);
       res.send(400, "Email and/or password is incorrect");
     } else {
@@ -199,6 +202,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (email === '' || password === '') {
     res.send(403, "Please include a valid email/ password.");
@@ -206,7 +210,7 @@ app.post('/register', (req, res) => {
     res.send(403, "Email has been used, existing user");
   } else {
     const id = generateRandomString();
-    users[id] = {id: id, email: email, password: password};
+    users[id] = {id: id, email: email, password: hashedPassword};
     res.cookie('user_id', id);
     console.log(users);
     res.redirect('/urls');

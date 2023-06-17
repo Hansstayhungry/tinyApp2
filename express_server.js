@@ -37,10 +37,10 @@ const users = {
 };
 
 // Helper to check all users info
-for (const userID in users) {
-  console.log(`User ID: ${userID}`);
-  console.log(users[userID]);
-};
+// for (const userID in users) {
+//   console.log(`User ID: ${userID}`);
+//   console.log(users[userID]);
+// };
 
 function generateRandomString() {
 	let shortURLID = '';
@@ -78,7 +78,6 @@ app.get("/urls", (req, res) => {
     return;
   };
   let userUrls = urlsForUser(req.session.user_id)
-  console.log(userUrls);
 
   const templateVars = {
     urls: userUrls,
@@ -148,7 +147,6 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.post("/urls/:id/", (req, res) => {
   const objectLongURL = req.body.long_url;
-  console.log(objectLongURL);
   const objectId = req.params.id;
 
   urlDatabase[objectId] = objectLongURL;
@@ -176,7 +174,6 @@ app.post('/login', (req, res) => {
     const users = getUserByEmail(email);
     
     if (!bcrypt.compareSync(password, users.password)) {
-      console.log(users.password);
       res.send(400, "Email and/or password is incorrect");
     } else {
       const id = users.id;
@@ -216,7 +213,6 @@ app.post('/register', (req, res) => {
     const id = generateRandomString();
     users[id] = {id: id, email: email, password: hashedPassword};
     req.session.user_id = id;
-    console.log(users);
     res.redirect('/urls');
   }
 })

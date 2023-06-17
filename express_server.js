@@ -54,10 +54,10 @@ function getUserByEmail(email) {
 };
 
 function urlsForUser(id) {
-  const userUrls = [];
+  const userUrls = {};
   for (let url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
-      userUrls.push(urlDatabase[url]);
+      userUrls[url] = urlDatabase[url];
     }
   }
   return userUrls;
@@ -70,8 +70,11 @@ app.get("/urls", (req, res) => {
     res.send(401, message);
     return;
   };
+  let userUrls = urlsForUser(req.cookies["user_id"])
+  console.log(userUrls);
+
   const templateVars = {
-    urls: urlDatabase,
+    urls: userUrls,
     user: users[req.cookies["user_id"]]
   }
     
@@ -106,14 +109,14 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   // If the user is not logged in, POST /urls should respond 
   // with an HTML message that tells the user why they cannot shorten URLs.
-  if (!res.cookies) {
+  if (!req.cookies["user_id"]) {
     const message = "You must log in to shorten URLs"
     res.send(401, message);
     return;
   }
 
   const id = generateRandomString();
-  urlDatabase[id].longURL = req.body.longURL;
+  urlDatabase[id] = {longURL: req.body.longURL, userID: req.cookies["user_id"]};
   res.redirect(`/urls/${id}`);
 });
 

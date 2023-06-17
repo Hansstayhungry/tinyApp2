@@ -12,8 +12,8 @@ app.use(cookieParser()); // Required to parse cookies
 app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", id: "userRandomID"},
-  "9sm5xK": {longURL: "http://www.google.com", id: "userRandomID"}
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "userRandomID"}
 };
 
 const users = {
@@ -30,9 +30,9 @@ const users = {
 };
 
 // Helper to check all users info
-for (const userId in users) {
-  console.log(`User ID: ${userId}`);
-  console.log(users[userId]);
+for (const userID in users) {
+  console.log(`User ID: ${userID}`);
+  console.log(users[userID]);
 };
 
 function generateRandomString() {
@@ -53,7 +53,23 @@ function getUserByEmail(email) {
     return false;
 };
 
+function urlsForUser(id) {
+  const userUrls = [];
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userUrls.push(urlDatabase[url]);
+    }
+  }
+  return userUrls;
+};
+
+
 app.get("/urls", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    const message = `Please login to continue <a href="/login">LOGIN HERE</a>`;
+    res.send(401, message);
+    return;
+  };
   const templateVars = {
     urls: urlDatabase,
     user: users[req.cookies["user_id"]]
@@ -72,6 +88,17 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    const message = "Please log in first.";
+    res.send(401, message);
+  };
+
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID !== req.cookies["user_id"]) {
+      const message = "You can't edit Urls that don't belong to you"
+      res.send(401, message);  
+    }
+  };
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });

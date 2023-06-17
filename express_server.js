@@ -12,8 +12,8 @@ app.use(cookieParser()); // Required to parse cookies
 app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", id: "userRandomID"},
+  "9sm5xK": {longURL: "http://www.google.com", id: "userRandomID"}
 };
 
 const users = {
@@ -63,25 +63,41 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = {user: users[req.cookies["user_id"]]}
-  res.render("urls_new", templateVars);
+  if (!req.cookies["user_id"]) {
+    res.redirect("/login");
+  } else {
+    const templateVars = {user: users[req.cookies["user_id"]]}
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]] };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
+  // If the user is not logged in, POST /urls should respond 
+  // with an HTML message that tells the user why they cannot shorten URLs.
+  if (!res.cookies) {
+    const message = "You must log in to shorten URLs"
+    res.send(401, message);
+    return;
+  }
+
   const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id].longURL = req.body.longURL;
   res.redirect(`/urls/${id}`);
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  if (urlDatabase[req.params.id]) {
+    const longURL = urlDatabase[req.params.id].longURL;
+    res.redirect(longURL);
+    //error message if the id does not exist at GET /u/:id.
+  } else {
+    res.send(404, "No longURL associated with this short URL");
+  }
 });
 
 // find the index of the urlDatabase, if exist, delete
@@ -105,8 +121,12 @@ app.post("/urls/:id/", (req, res) => {
 
 //New login route
 app.get('/login', (req, res) => {
-  const templateVars = {user: users[req.cookies["user_id"]]}
-  res.render('urls_login', templateVars);
+  if (req.cookies["user_id"]) {
+    res.redirect('/urls');
+  } else {
+    const templateVars = {user: users[req.cookies["user_id"]]};
+    res.render('urls_login', templateVars);
+  }
 });
 
 //Login route
@@ -137,8 +157,12 @@ app.post('/logout', (req, res) => {
 
 //Register route
 app.get('/register', (req, res) => {
-  const templateVars = {user: users[req.cookies["user_id"]]}
-  res.render('urls_register', templateVars);
+  if (req.cookies["user_id"]) {
+    res.redirect('/urls');
+  } else {
+    const templateVars = {user: users[req.cookies["user_id"]]}
+    res.render('urls_register', templateVars);
+  }
 });
 
 //Registration handling

@@ -5,6 +5,7 @@ const PORT = 8080; // default port 8080
 //const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
+const getUserByEmail = require("./helpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded());
@@ -51,14 +52,7 @@ function generateRandomString() {
 	return shortURLID;
 };
 
-function getUserByEmail(email) {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return users[user];
-    }
-  }
-    return false;
-};
+
 
 function urlsForUser(id) {
   const userUrls = {};
@@ -168,10 +162,10 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  if (!getUserByEmail(email)) {
+  if (!getUserByEmail(email, users)) {
     res.send(400, "Email and/or password is incorrect");
   } else {
-    const users = getUserByEmail(email);
+    const users = getUserByEmail(email, users);
     
     if (!bcrypt.compareSync(password, users.password)) {
       res.send(400, "Email and/or password is incorrect");
@@ -207,7 +201,7 @@ app.post('/register', (req, res) => {
 
   if (email === '' || password === '') {
     res.send(403, "Please include a valid email/ password.");
-  } else if (getUserByEmail(email)) {
+  } else if (getUserByEmail(email, users)) {
     res.send(403, "Email has been used, existing user");
   } else {
     const id = generateRandomString();

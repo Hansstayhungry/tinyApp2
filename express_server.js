@@ -1,17 +1,12 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-// const morgan = require('morgan');
-//const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const getUserByEmail = require("./helpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded());
-// app.use(express.json()); // Required to parse JSON request bodies
-// app.use(morgan("dev")); // Required to parse cookies
-// app.use(cookieParser());
 app.use(cookieSession({
   name: "session",
   keys: ["Hans", "Wang"],
@@ -37,24 +32,16 @@ const users = {
   },
 };
 
-// Helper to check all users info
-// for (const userID in users) {
-//   console.log(`User ID: ${userID}`);
-//   console.log(users[userID]);
-// };
-
-function generateRandomString() {
-	let shortURLID = '';
+const generateRandomString = function() {
+  let shortURLID = '';
   let arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 6; i++) {
-		shortURLID += arr[(Math.floor(Math.random() * arr.length))];
-	}
+  for (let i = 0; i < 6; i++) {
+    shortURLID += arr[(Math.floor(Math.random() * arr.length))];
+  }
 	return shortURLID;
 };
 
-
-
-function urlsForUser(id) {
+const urlsForUser = function(id) {
   const userUrls = {};
   for (let url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
@@ -70,13 +57,13 @@ app.get("/urls", (req, res) => {
     const message = `Please login to continue <a href="/login">LOGIN HERE</a>`;
     res.send(401, message);
     return;
-  };
-  let userUrls = urlsForUser(req.session.user_id)
+  }
+  let userUrls = urlsForUser(req.session.user_id);
 
   const templateVars = {
     urls: userUrls,
     user: users[req.session.user_id]
-  }
+  };
     
   res.render("urls_index", templateVars);
 });
@@ -85,7 +72,7 @@ app.get("/urls/new", (req, res) => {
   if (!req.session.user_id) {
     res.redirect("/login");
   } else {
-    const templateVars = {user: users[req.session.user_id]}
+    const templateVars = {user: users[req.session.user_id]};
     res.render("urls_new", templateVars);
   }
 });
@@ -94,22 +81,22 @@ app.get("/urls/:id", (req, res) => {
   if (!req.session.user_id) {
     const message = "Please log in first.";
     res.send(401, message);
-  };
+  }
 
   if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-    const message = "You can't edit Urls that don't belong to you"
-    res.send(401, message);  
-    }
-    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, 
-      user: users[req.session.user_id] };
+    const message = "You can't edit Urls that don't belong to you";
+    res.send(401, message);
+  }
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL,
+    user: users[req.session.user_id] };
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  // If the user is not logged in, POST /urls should respond 
+  // If the user is not logged in, POST /urls should respond
   // with an HTML message that tells the user why they cannot shorten URLs.
   if (!req.session.user_id) {
-    const message = "You must log in to shorten URLs"
+    const message = "You must log in to shorten URLs";
     res.send(401, message);
     return;
   }
@@ -188,7 +175,7 @@ app.get('/register', (req, res) => {
   if (req.session.user_id) {
     res.redirect('/urls');
   } else {
-    const templateVars = {user: users[req.session.user_id]}
+    const templateVars = {user: users[req.session.user_id]};
     res.render('urls_register', templateVars);
   }
 });
@@ -209,7 +196,7 @@ app.post('/register', (req, res) => {
     req.session.user_id = id;
     res.redirect('/urls');
   }
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);

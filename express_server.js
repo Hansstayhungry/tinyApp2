@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
-const getUserByEmail = require("./helpers");
+const {getUserByEmail} = require("./helpers");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded());
@@ -42,8 +42,8 @@ const generateRandomString = function() {
 };
 
 const urlsForUser = function(id) {
-  const userUrls = {};
-  for (let url in urlDatabase) {
+  let userUrls = {};
+  for (let url of Object.keys(urlDatabase)) {
     if (urlDatabase[url].userID === id) {
       userUrls[url] = urlDatabase[url];
     }
@@ -109,9 +109,11 @@ app.post("/urls", (req, res) => {
 app.get("/u/:id", (req, res) => {
   if (urlDatabase[req.params.id]) {
     const longURL = urlDatabase[req.params.id].longURL;
+    console.log(urlDatabase[req.params.id].longURL)
     res.redirect(longURL);
     //error message if the id does not exist at GET /u/:id.
-  } else {
+  } 
+  else {
     res.send(404, "No longURL associated with this short URL");
   }
 });
@@ -130,7 +132,7 @@ app.post("/urls/:id/", (req, res) => {
   const objectLongURL = req.body.long_url;
   const objectId = req.params.id;
 
-  urlDatabase[objectId] = objectLongURL;
+  urlDatabase[objectId].longURL = objectLongURL;
   res.redirect("/urls");
 });
 

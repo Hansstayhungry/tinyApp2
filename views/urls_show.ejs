@@ -22,9 +22,9 @@
         </p>
       </div>
       <div class="card-footer text-muted">
-        <h5 class="card-title">Edit</h5>
+        <h5 class="card-title">Edit (PLease start with http://)</h5>
         <form method="POST" action="/urls/<%= id %>/">
-          <input type="text" name="long_url" value="<%= longURL %>">
+          <input type="text" name="long_url" value="<%= longURL %>" pattern="^(http:\/\/|https:\/\/).*$" required>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
